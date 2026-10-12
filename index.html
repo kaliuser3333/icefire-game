@@ -94,8 +94,8 @@ canvas { display: block; touch-action: none; }
 .result-title { font-size: 34px; font-weight: 900; color: #fff; margin-bottom: 12px; }
 .result-stats { color: #8b92a8; font-size: 15px; margin-bottom: 30px; text-align: center; line-height: 1.6; }
 .result-stats b { color: #fbbf24; }
-</style>
-  #rotate-overlay {
+
+#rotate-overlay {
   position: fixed;
   inset: 0;
   z-index: 9999;
@@ -129,6 +129,8 @@ canvas { display: block; touch-action: none; }
   font-size: 13px;
   color: #8b92a8;
 }
+</style>
+</head>
 </head>
 <body>
 <div id="game">
@@ -369,21 +371,6 @@ canvas.addEventListener('touchmove', e => {
     const prev = activeTouches[t.identifier];
     if (!prev) continue;
     const pos = { x: t.clientX - rect.left, y: t.clientY - rect.top };
-    const ctrl = (prev.player === 'p1' ? controls1 : controls2)[prev.key];
-    if (!checkHit(pos, ctrl)) {
-      input[prev.player][prev.key] = false;
-      delete activeTouches[t.identifier];
-    }
-  }
-}, { passive: false });
-
-canvas.addEventListener('touchmove', e => {
-  e.preventDefault();
-  const rect = canvas.getBoundingClientRect();
-  for (const t of e.changedTouches) {
-    const prev = activeTouches[t.identifier];
-    if (!prev) continue;
-    const pos = { x: (t.clientX - rect.left)/SCALE, y: (t.clientY - rect.top)/SCALE };
     const ctrl = (prev.player === 'p1' ? controls1 : controls2)[prev.key];
     if (!checkHit(pos, ctrl)) {
       input[prev.player][prev.key] = false;
