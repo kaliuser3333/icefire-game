@@ -10,7 +10,19 @@
 <link rel="manifest" href="manifest.json">
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
-html, body { width: 100%; height: 100%; overflow: hidden; background: #0a0e17; font-family: -apple-system, sans-serif; touch-action: none; }
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #0a0e17;
+  font-family: -apple-system, sans-serif;
+  touch-action: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
 #game { position: fixed; inset: 0; }
 canvas { display: block; touch-action: none; position: absolute; top: 0; left: 0; }
 .hud {
@@ -1165,6 +1177,35 @@ checkOrientation();
 lockLandscape();
 window.addEventListener('orientationchange', () => setTimeout(checkOrientation, 200));
 window.matchMedia('(orientation: portrait)').addEventListener('change', checkOrientation);
+  // Принудительный фуллскрин на Android
+function forceFullscreen() {
+  // Скрываем всё, что может дать браузеру повод показать панели
+  document.documentElement.style.height = '100%';
+  document.body.style.height = '100%';
+  document.documentElement.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
+  
+  // Пытаемся через Fullscreen API
+  const el = document.documentElement;
+  const requestFS = el.requestFullscreen || el.webkitRequestFullscreen || el.mozRequestFullScreen || el.msRequestFullscreen;
+  if (requestFS) {
+    requestFS.call(el).catch(() => {
+      // Если не сработало — просто фиксируем размер
+      window.scrollTo(0, 0);
+    });
+  }
+  
+  // Принудительно фиксируем размер окна
+  window.scrollTo(0, 0);
+}
+
+// Запускаем при старте
+forceFullscreen();
+
+// И при каждом тапе (потому что Android требует взаимодействия)
+canvas.addEventListener('touchstart', () => {
+  forceFullscreen();
+}, { passive: true });
 
 // ==================== СТАРТ ====================
 resize();
