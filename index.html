@@ -240,9 +240,11 @@ function sndUlt() { playSound(150, 0.4, 'sawtooth', 0.12); }
 
 // ==================== РАЗМЕР ====================
 function resize() {
-  const W = window.innerWidth, H = window.innerHeight;
-  SCALE = Math.min(W / WORLD_W, H / WORLD_H);
-  const cw = WORLD_W * SCALE, ch = WORLD_H * SCALE;
+  const W = window.innerWidth;
+  const H = window.innerHeight;
+  SCALE = Math.max(W / WORLD_W, H / WORLD_H);
+  const cw = WORLD_W * SCALE;
+  const ch = WORLD_H * SCALE;
   canvas.width = cw;
   canvas.height = ch;
   canvas.style.width = cw + 'px';
@@ -961,14 +963,12 @@ function drawParticles() {
 function drawJoystick(joy, color) {
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);
-  // База
   ctx.globalAlpha = 0.15;
   ctx.fillStyle = color;
   ctx.beginPath(); ctx.arc(joy.baseX, joy.baseY, joy.r, 0, Math.PI*2); ctx.fill();
   ctx.globalAlpha = 0.4;
   ctx.strokeStyle = color; ctx.lineWidth = 3;
   ctx.beginPath(); ctx.arc(joy.baseX, joy.baseY, joy.r, 0, Math.PI*2); ctx.stroke();
-  // Стик
   ctx.globalAlpha = 0.7;
   ctx.fillStyle = color;
   ctx.beginPath(); ctx.arc(joy.baseX + joy.x, joy.baseY + joy.y, joy.r * 0.4, 0, Math.PI*2); ctx.fill();
