@@ -1,0 +1,17 @@
+{
+  "name": "Лёд и Пламя: Вторжение",
+  "short_name": "IceFire",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a0e17",
+  "theme_color": "#0a0e17",
+  "orientation": "landscape",
+  "icons": [
+    {
+      "src": "ice.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
