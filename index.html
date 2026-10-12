@@ -2,7 +2,10 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
 <title>Лёд и Пламя: Вторжение</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; user-select: none; }
@@ -92,9 +95,48 @@ canvas { display: block; touch-action: none; }
 .result-stats { color: #8b92a8; font-size: 15px; margin-bottom: 30px; text-align: center; line-height: 1.6; }
 .result-stats b { color: #fbbf24; }
 </style>
+  #rotate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #0a0e17;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  text-align: center;
+  padding: 20px;
+}
+#rotate-overlay.show { display: flex; }
+.rotate-icon {
+  font-size: 80px;
+  margin-bottom: 20px;
+  animation: rotateAnim 2s ease-in-out infinite;
+}
+@keyframes rotateAnim {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(90deg); }
+}
+.rotate-text {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  color: #fbbf24;
+  margin-bottom: 10px;
+}
+.rotate-sub {
+  font-size: 13px;
+  color: #8b92a8;
+}
 </head>
 <body>
 <div id="game">
+  <div id="rotate-overlay">
+  <div class="rotate-icon">📱</div>
+  <div class="rotate-text">ПЕРЕВЕРНИ ТЕЛЕФОН</div>
+  <div class="rotate-sub">Игра работает только в горизонтальном режиме</div>
+</div>
   <canvas id="canvas"></canvas>
   <div class="hud" id="hud">УРОВЕНЬ 1 / 10</div>
   <div class="coins" id="coins">🪙 0</div>
@@ -206,13 +248,15 @@ function sndUlt() { playSound(150, 0.4, 'sawtooth', 0.12); }
 
 // ==================== РАЗМЕР ====================
 function resize() {
-  const W = window.innerWidth, H = window.innerHeight;
+  const W = window.innerWidth;
+  const H = window.innerHeight;
   SCALE = Math.min(W / WORLD_W, H / WORLD_H);
   canvas.width = WORLD_W * SCALE;
   canvas.height = WORLD_H * SCALE;
   canvas.style.width = (WORLD_W * SCALE) + 'px';
   canvas.style.height = (WORLD_H * SCALE) + 'px';
   ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+  // Кнопки пересчитываем под новый размер
   setupControls();
 }
 window.addEventListener('resize', resize);
@@ -1569,6 +1613,47 @@ function loop(t) {
 resize();
 updateCoinsUI();
 requestAnimationFrame(loop);
+  // ==================== ОРИЕНТАЦИЯ ====================
+function checkOrientation() {
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  if (!isMobile) {
+    document.getElementById('rotate-overlay').classList.remove('show');
+    return;
+  }
+  const isPortrait = window.matchMedia('(orientation: portrait)').matches;
+  const overlay = document.getElementById('rotate-overlay');
+  if (isPortrait) {
+    overlay.classList.add('show');
+  } else {
+    overlay.classList.remove('show');
+    // После поворота пересчитываем размеры
+    setTimeout(() => {
+      resize();
+      if (controls1.left) setupControls();
+    }, 100);
+  }
+}
+
+// Попытка заблокировать горизонталь (работает на Android Chrome)
+async function lockLandscape() {
+  try {
+    if (screen.orientation && screen.orientation.lock) {
+      await screen.orientation.lock('landscape');
+    }
+  } catch (e) {
+    // iOS Safari не поддерживает — игнорируем
+  }
+}
+
+// Запускаем при загрузке
+checkOrientation();
+lockLandscape();
+
+// Слушаем изменения ориентации
+window.addEventListener('orientationchange', () => {
+  setTimeout(checkOrientation, 200);
+});
+window.matchMedia('(orientation: portrait)').addEventListener('change', checkOrientation);
 </script>
 </body>
 </html>
